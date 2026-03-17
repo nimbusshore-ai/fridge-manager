@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我家的冰箱</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --primary-color: #000;
+            --secondary-color: #666;
+            --accent-color: #3b82f6;
+            --bg-color: #fff;
+            --border-color: #e5e5e5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 自定义鼠标效果 */
+        #custom-cursor {
+            position: fixed;
+            width: 24px;
+            height: 24px;
+            border: 1px solid var(--primary-color);
+            border-radius: 50%;
+            pointer-events: none;
+            mix-blend-mode: difference;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s ease, width 0.3s ease, height 0.3s ease;
+        }
+        
+        /* 线条元素 */
+        .line-element {
+            height: 1px;
+            background-color: var(--primary-color);
+            opacity: 0.7;
+        }
+        
+        .corner-line {
+            position: absolute;
+        }
+        
+        .corner-line::before,
+        .corner-line::after {
+            content: '';
+            position: absolute;
+            background-color: var(--primary-color);
+            opacity: 0.3;
+        }
+        
+        .corner-line::before {
+            width: 16px;
+            height: 1px;
+        }
+        
+        .corner-line::after {
+            width: 1px;
+            height: 16px;
+        }
+        
+        .corner-line.top-right::before {
+            top: 0;
+            right: 0;
+        }
+        
+        .corner-line.top-right::after {
+            top: 0;
+            right: 0;
+        }
+        
+        /* 滚动差分效果 */
+        .screen {
+            position: relative;
+            min-height: 100vh;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+        
+        /* 头部导航 */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: -0.5px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        /* 主内容区域 */
+        .main-content {
+            margin-top: 80px;
+            padding-bottom: 100px;
+        }
+        
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat-card {
+            position: relative;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* 食物分类 */
+        .category-section {
+            margin-bottom: 3rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 400;
+            position: relative;
+            padding-right: 1rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 40px;
+            height: 1px;
+            background-color: var(--accent-color);
+        }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .category-card {
+            position: relative;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .category-card:hover {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+        }
+        
+        .category-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .category-name {
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+        
+        /* 食物列表 */
+        .food-section {
+            margin-bottom: 3rem;
+        }
+        
+        .food-list {
+            space-y: 1rem;
+        }
+        
+        .food-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .food-item:hover {
+            background-color: #fafafa;
+        }
+        
+        .food-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .food-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            font-size: 1.2rem;
+        }
+        
+        .food-details h4 {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .food-details p {
+            font-size: 0.875rem;
+            color: var(--secondary-color);
+        }
+        
+        .food-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .expiry-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .expiry-badge.expired {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .expiry-badge.warning {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+        
+        .expiry-badge.safe {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+        
+        /* 底部输入框 */
+        .bottom-input {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            z-index: 100;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .voice-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .voice-btn:hover {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+        }
+        
+        .text-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 2rem;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .text-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .add-btn {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .add-btn:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-1px);
+        }
+        
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 80px;
+            left: 0;
+            right: 0;
+            background-color: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            z-index: 99;
+        }
+        
+        .nav-items {
+            display: flex;
+            justify-content: space-around;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.5;
+        }
+        
+        .nav-item.active {
+            opacity: 1;
+            color: var(--accent-color);
+        }
+        
+        .nav-item span {
+            font-size: 0.75rem;
+        }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background-color: var(--bg-color);
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .modal-header h3 {
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+        
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+        
+        .btn-secondary {
+            padding: 0.75rem 1.5rem;
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .btn-primary {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--accent-color);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .category-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1rem;
+            }
+            
+            .bottom-input {
+                padding: 1rem;
+            }
+            
+            .modal-content {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+        }
+        
+        /* 苹果手机适配 (iPhone 6-12) */
+        @media (max-width: 480px) {
+            .header-content {
+                padding: 0.75rem 1rem;
+            }
+            
+            .logo {
+                font-size: 1.25rem;
+            }
+            
+            .main-content {
+                margin-top: 70px;
+                padding-bottom: 90px;
+            }
+            
+            .container {
+                padding: 0 16px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            
+            .stat-card {
+                padding: 1.5rem 1rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+            
+            .category-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.75rem;
+            }
+            
+            .category-card {
+                padding: 1rem;
+            }
+            
+            .category-icon {
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .section-header {
+                margin-bottom: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.25rem;
+            }
+            
+            .food-item {
+                padding: 1rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            
+            .food-info {
+                width: 100%;
+            }
+            
+            .food-actions {
+                width: 100%;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .bottom-input {
+                padding: 0.75rem 1rem;
+                padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+            }
+            
+            .input-container {
+                gap: 0.5rem;
+            }
+            
+            .voice-btn {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .text-input {
+                font-size: 0.875rem;
+                padding: 0.625rem 0.875rem;
+            }
+            
+            .add-btn {
+                padding: 0.625rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            .modal-content {
+                padding: 1.25rem;
+                margin: 0.75rem;
+                margin-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+            }
+            
+            .modal-header {
+                margin-bottom: 1.5rem;
+            }
+            
+            .modal-header h3 {
+                font-size: 1.25rem;
+            }
+            
+            .form-group {
+                margin-bottom: 1.25rem;
+            }
+            
+            .form-input {
+                font-size: 0.875rem;
+                padding: 0.625rem 0.875rem;
+            }
+            
+            .form-actions {
+                margin-top: 1.5rem;
+                gap: 0.75rem;
+            }
+            
+            .btn-secondary,
+            .btn-primary {
+                padding: 0.625rem 1rem;
+                font-size: 0.875rem;
+            }
+        }
+        
+        /* 大屏手机适配 (iPhone 12+, 安卓旗舰机) */
+        @media (min-width: 481px) and (max-width: 640px) {
+            .header-content {
+                padding: 0.875rem 1.25rem;
+            }
+            
+            .main-content {
+                margin-top: 75px;
+                padding-bottom: 95px;
+            }
+            
+            .container {
+                padding: 0 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .category-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1rem;
+            }
+            
+            .bottom-input {
+                padding: 0.875rem 1.25rem;
+                padding-bottom: calc(0.875rem + env(safe-area-inset-bottom, 0px));
+            }
+        }
+        
+        /* 平板适配 */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .container {
+                padding: 0 32px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .category-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 1.25rem;
+            }
+        }
+        
+        /* 横屏适配 */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .header-content {
+                padding: 0.5rem 1rem;
+            }
+            
+            .main-content {
+                margin-top: 60px;
+                padding-bottom: 80px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.5rem;
+            }
+            
+            .stat-card {
+                padding: 1rem 0.75rem;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            
+            .stat-label {
+                font-size: 0.75rem;
+            }
+            
+            .category-grid {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 0.5rem;
+            }
+            
+            .category-card {
+                padding: 0.75rem;
+            }
+            
+            .category-icon {
+                font-size: 1.25rem;
+                margin-bottom: 0.25rem;
+            }
+            
+            .category-name {
+                font-size: 0.75rem;
+            }
+            
+            .food-item {
+                padding: 0.75rem;
+            }
+            
+            .bottom-input {
+                padding: 0.5rem 1rem;
+            }
+            
+            .input-container {
+                gap: 0.5rem;
+            }
+            
+            .voice-btn {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .text-input {
+                font-size: 0.875rem;
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .add-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.875rem;
+            }
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- 自定义鼠标 -->
+    <div id="custom-cursor"></div>
+    
+    <!-- 头部导航 -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">我家的冰箱</div>
+            <div class="header-actions">
+                <button class="voice-btn" onclick="toggleVoiceInput()">
+                    <i data-lucide="mic"></i>
+                </button>
+                <button class="voice-btn" onclick="showAddFoodModal()">
+                    <i data-lucide="plus"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- 主内容区域 -->
+    <main class="main-content container">
+        <!-- 统计卡片 -->
+        <section class="stats-grid">
+            <div class="stat-card fade-in-up">
+                <div class="corner-line top-right"></div>
+                <div class="stat-number" id="totalFoodCount">0</div>
+                <div class="stat-label">总食物数量</div>
+            </div>
+            <div class="stat-card fade-in-up" style="animation-delay: 0.1s;">
+                <div class="corner-line top-right"></div>
+                <div class="stat-number" id="expiringSoonCount">0</div>
+                <div class="stat-label">即将过期</div>
+            </div>
+            <div class="stat-card fade-in-up" style="animation-delay: 0.2s;">
+                <div class="corner-line top-right"></div>
+                <div class="stat-number" id="expiredCount">0</div>
+                <div class="stat-label">已过期</div>
+            </div>
+            <div class="stat-card fade-in-up" style="animation-delay: 0.3s;">
+                <div class="corner-line top-right"></div>
+                <div class="stat-number" id="categoryCount">0</div>
+                <div class="stat-label">食物分类</div>
+            </div>
+        </section>
+        
+        <!-- 食物分类 -->
+        <section class="category-section">
+            <div class="section-header">
+                <h2 class="section-title">食物分类</h2>
+                <button onclick="showAddCategoryModal()" class="text-sm text-gray-500 hover:text-gray-700">
+                    添加分类
+                </button>
+            </div>
+            <div class="category-grid" id="categoryGrid">
+                <!-- 分类卡片将通过JavaScript动态生成 -->
+            </div>
+        </section>
+        
+        <!-- 即将过期食物 -->
+        <section class="food-section">
+            <div class="section-header">
+                <h2 class="section-title">即将过期</h2>
+                <button onclick="sortFoodByExpiry()" class="text-sm text-gray-500 hover:text-gray-700">
+                    按过期时间排序
+                </button>
+            </div>
+            <div class="food-list" id="expiringSoonList">
+                <!-- 即将过期的食物将通过JavaScript动态生成 -->
+            </div>
+        </section>
+        
+        <!-- 所有食物 -->
+        <section class="food-section">
+            <div class="section-header">
+                <h2 class="section-title">所有食物</h2>
+                <div class="flex gap-2">
+                    <select id="categoryFilter" onchange="filterFoodByCategory()" class="text-sm border border-gray-300 rounded px-2 py-1">
+                        <option value="">所有分类</option>
+                    </select>
+                    <button onclick="sortFoodByName()" class="text-sm text-gray-500 hover:text-gray-700">
+                        按名称排序
+                    </button>
+                </div>
+            </div>
+            <div class="food-list" id="allFoodList">
+                <!-- 所有食物将通过JavaScript动态生成 -->
+            </div>
+        </section>
+    </main>
+    
+    <!-- 家庭成员管理按钮 -->
+    <div class="fixed top-20 right-4 z-50">
+        <button class="voice-btn bg-white shadow-lg" onclick="showFamilyModal()">
+            <i data-lucide="users"></i>
+        </button>
+    </div>
+    
+    <!-- 底部输入框 -->
+    <div class="bottom-input">
+        <div class="input-container">
+            <button class="voice-btn" onclick="toggleVoiceInput()">
+                <i data-lucide="mic"></i>
+            </button>
+            <input type="text" class="text-input" id="quickInput" placeholder="快速添加食物，例如：牛奶 2024-12-31" onkeypress="handleQuickInput(event)">
+            <button class="add-btn" onclick="handleQuickInputSubmit()">添加</button>
+        </div>
+    </div>
+    
+    <!-- 添加食物模态框 -->
+    <div class="modal" id="addFoodModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加食物</h3>
+                <button class="close-btn" onclick="hideAddFoodModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form id="addFoodForm">
+                <div class="form-group">
+                    <label class="form-label">食物名称</label>
+                    <input type="text" class="form-input" id="foodName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">分类</label>
+                    <select class="form-input" id="foodCategory" required>
+                        <option value="">选择分类</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">保质期</label>
+                    <input type="date" class="form-input" id="expiryDate" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">数量</label>
+                    <input type="number" class="form-input" id="quantity" min="1" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <input type="text" class="form-input" id="notes">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="hideAddFoodModal()">取消</button>
+                    <button type="submit" class="btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 添加分类模态框 -->
+    <div class="modal" id="addCategoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加分类</h3>
+                <button class="close-btn" onclick="hideAddCategoryModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form id="addCategoryForm">
+                <div class="form-group">
+                    <label class="form-label">分类名称</label>
+                    <input type="text" class="form-input" id="categoryName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">图标</label>
+                    <select class="form-input" id="categoryIcon" required>
+                        <option value="apple">苹果</option>
+                        <option value="banana">香蕉</option>
+                        <option value="carrot">胡萝卜</option>
+                        <option value="milk">牛奶</option>
+                        <option value="egg">鸡蛋</option>
+                        <option value="bread">面包</option>
+                        <option value="meat">肉类</option>
+                        <option value="fish">鱼类</option>
+                        <option value="rice">米饭</option>
+                        <option value="water">水</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="hideAddCategoryModal()">取消</button>
+                    <button type="submit" class="btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 家庭成员管理模态框 -->
+    <div class="modal" id="familyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>家庭成员管理</h3>
+                <button class="close-btn" onclick="hideFamilyModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-lg font-medium">当前成员</h4>
+                    <button onclick="showAddMemberModal()" class="text-sm text-blue-600 hover:text-blue-800">
+                        添加成员
+                    </button>
+                </div>
+                <div id="familyMembersList" class="space-y-2">
+                    <!-- 家庭成员列表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            <div class="mb-4">
+                <h4 class="text-lg font-medium mb-2">共享链接</h4>
+                <div class="flex gap-2">
+                    <input type="text" id="shareLink" class="form-input flex-1" readonly>
+                    <button onclick="copyShareLink()" class="btn-secondary text-sm">复制</button>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">分享此链接给家庭成员，他们可以加入共同管理冰箱</p>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="hideFamilyModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加家庭成员模态框 -->
+    <div class="modal" id="addMemberModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加家庭成员</h3>
+                <button class="close-btn" onclick="hideAddMemberModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form id="addMemberForm">
+                <div class="form-group">
+                    <label class="form-label">成员名称</label>
+                    <input type="text" class="form-input" id="memberName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">角色</label>
+                    <select class="form-input" id="memberRole" required>
+                        <option value="admin">管理员</option>
+                        <option value="member">成员</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="hideAddMemberModal()">取消</button>
+                    <button type="submit" class="btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // 全局变量
+        let foods = [];
+        let categories = [
+            { id: 1, name: '水果', icon: 'apple' },
+            { id: 2, name: '蔬菜', icon: 'carrot' },
+            { id: 3, name: '乳制品', icon: 'milk' },
+            { id: 4, name: '蛋类', icon: 'egg' },
+            { id: 5, name: '主食', icon: 'bread' }
+        ];
+        let familyMembers = [];
+        let currentUser = null;
+        let fridgeId = null;
+        let recognition = null;
+        let isVoiceActive = false;
+        let syncInterval = null;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupCustomCursor();
+            setupScrollEffects();
+            lucide.createIcons();
+        });
+        
+        // 初始化应用
+        function initializeApp() {
+            initializeFamilySharing();
+            loadData();
+            updateUI();
+            setupEventListeners();
+            
+            // 设置今天的日期为默认保质期
+            const today = new Date();
+            const nextWeek = new Date(today);
+            nextWeek.setDate(today.getDate() + 7);
+            document.getElementById('expiryDate').valueAsDate = nextWeek;
+        }
+        
+        // 初始化家庭共享
+        function initializeFamilySharing() {
+            // 检查URL中是否有共享链接参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedFridgeId = urlParams.get('fridgeId');
+            
+            if (sharedFridgeId) {
+                fridgeId = sharedFridgeId;
+                joinSharedFridge(sharedFridgeId);
+            } else {
+                // 创建或加载本地冰箱ID
+                fridgeId = localStorage.getItem('fridgeId') || generateFridgeId();
+                localStorage.setItem('fridgeId', fridgeId);
+                
+                // 创建默认用户
+                if (!localStorage.getItem('currentUser')) {
+                    currentUser = {
+                        id: Date.now(),
+                        name: '我',
+                        role: 'admin'
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    familyMembers = [currentUser];
+                    saveFamilyMembers();
+                } else {
+                    currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                    loadFamilyMembers();
+                }
+            }
+            
+            // 启动定期同步
+            startPeriodicSync();
+        }
+        
+        // 生成冰箱ID
+        function generateFridgeId() {
+            return 'fridge_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        // 加入共享冰箱
+        function joinSharedFridge(sharedFridgeId) {
+            fridgeId = sharedFridgeId;
+            
+            // 从共享存储中加载数据
+            const sharedData = localStorage.getItem(sharedFridgeId);
+            if (sharedData) {
+                const data = JSON.parse(sharedData);
+                foods = data.foods || [];
+                categories = data.categories || categories;
+                familyMembers = data.members || [];
+            }
+            
+            // 如果用户不存在，创建访客用户
+            if (!localStorage.getItem('currentUser_' + sharedFridgeId)) {
+                currentUser = {
+                    id: Date.now(),
+                    name: '访客_' + Math.random().toString(36).substr(2, 4),
+                    role: 'member'
+                };
+                localStorage.setItem('currentUser_' + sharedFridgeId, JSON.stringify(currentUser));
+                
+                // 添加到家庭成员列表
+                familyMembers.push(currentUser);
+                saveSharedData();
+            } else {
+                currentUser = JSON.parse(localStorage.getItem('currentUser_' + sharedFridgeId));
+            }
+        }
+        
+        // 加载家庭成员
+        function loadFamilyMembers() {
+            const savedMembers = localStorage.getItem('familyMembers_' + fridgeId);
+            if (savedMembers) {
+                familyMembers = JSON.parse(savedMembers);
+            }
+        }
+        
+        // 保存家庭成员
+        function saveFamilyMembers() {
+            localStorage.setItem('familyMembers_' + fridgeId, JSON.stringify(familyMembers));
+        }
+        
+        // 启动定期同步
+        function startPeriodicSync() {
+            syncInterval = setInterval(() => {
+                syncData();
+            }, 30000); // 每30秒同步一次
+        }
+        
+        // 同步数据
+        function syncData() {
+            if (fridgeId) {
+                saveSharedData();
+                
+                // 检查是否有其他用户的更新
+                const sharedData = localStorage.getItem(fridgeId);
+                if (sharedData) {
+                    const data = JSON.parse(sharedData);
+                    const remoteTimestamp = data.timestamp || 0;
+                    const localTimestamp = localStorage.getItem('lastSync_' + fridgeId) || 0;
+                    
+                    if (remoteTimestamp > localTimestamp) {
+                        // 有新数据，合并更新
+                        mergeRemoteData(data);
+                        localStorage.setItem('lastSync_' + fridgeId, Date.now().toString());
+                    }
+                }
+            }
+        }
+        
+        // 合并远程数据
+        function mergeRemoteData(remoteData) {
+            // 简单的合并策略：以时间戳最新的为准
+            if (remoteData.foods) {
+                foods = remoteData.foods;
+            }
+            if (remoteData.categories) {
+                categories = remoteData.categories;
+            }
+            if (remoteData.members) {
+                familyMembers = remoteData.members;
+            }
+            updateUI();
+        }
+        
+        // 保存共享数据
+        function saveSharedData() {
+            if (fridgeId) {
+                const data = {
+                    foods: foods,
+                    categories: categories,
+                    members: familyMembers,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem(fridgeId, JSON.stringify(data));
+                localStorage.setItem('lastSync_' + fridgeId, Date.now().toString());
+            }
+        }
+        
+        // 加载数据
+        function loadData() {
+            if (fridgeId) {
+                const sharedData = localStorage.getItem(fridgeId);
+                if (sharedData) {
+                    const data = JSON.parse(sharedData);
+                    foods = data.foods || [];
+                    categories = data.categories || categories;
+                } else {
+                    const savedFoods = localStorage.getItem('fridgeFoods');
+                    const savedCategories = localStorage.getItem('fridgeCategories');
+                    
+                    if (savedFoods) {
+                        foods = JSON.parse(savedFoods);
+                    }
+                    
+                    if (savedCategories) {
+                        categories = JSON.parse(savedCategories);
+                    }
+                }
+            }
+        }
+        
+        // 保存数据
+        function saveData() {
+            if (fridgeId) {
+                saveSharedData();
+            } else {
+                localStorage.setItem('fridgeFoods', JSON.stringify(foods));
+                localStorage.setItem('fridgeCategories', JSON.stringify(categories));
+            }
+        }
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            document.getElementById('addFoodForm').addEventListener('submit', handleAddFood);
+            document.getElementById('addCategoryForm').addEventListener('submit', handleAddCategory);
+            document.getElementById('addMemberForm').addEventListener('submit', handleAddMember);
+            
+            // 点击模态框外部关闭
+            document.getElementById('addFoodModal').addEventListener('click', function(e) {
+                if (e.target === this) hideAddFoodModal();
+            });
+            
+            document.getElementById('addCategoryModal').addEventListener('click', function(e) {
+                if (e.target === this) hideAddCategoryModal();
+            });
+            
+            document.getElementById('familyModal').addEventListener('click', function(e) {
+                if (e.target === this) hideFamilyModal();
+            });
+            
+            document.getElementById('addMemberModal').addEventListener('click', function(e) {
+                if (e.target === this) hideAddMemberModal();
+            });
+            
+            // 键盘快捷键
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideAddFoodModal();
+                    hideAddCategoryModal();
+                    hideFamilyModal();
+                    hideAddMemberModal();
+                }
+            });
+        }
+        
+        // 更新UI
+        function updateUI() {
+            updateStats();
+            renderCategories();
+            renderFoodLists();
+            updateCategoryFilter();
+            saveData();
+        }
+        
+        // 更新统计数据
+        function updateStats() {
+            const totalCount = foods.length;
+            const expiredCount = foods.filter(food => isExpired(food.expiryDate)).length;
+            const expiringSoonCount = foods.filter(food => isExpiringSoon(food.expiryDate)).length;
+            const categoryCount = categories.length;
+            
+            document.getElementById('totalFoodCount').textContent = totalCount;
+            document.getElementById('expiredCount').textContent = expiredCount;
+            document.getElementById('expiringSoonCount').textContent = expiringSoonCount;
+            document.getElementById('categoryCount').textContent = categoryCount;
+        }
+        
+        // 渲染分类
+        function renderCategories() {
+            const categoryGrid = document.getElementById('categoryGrid');
+            categoryGrid.innerHTML = '';
+            
+            categories.forEach((category, index) => {
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'category-card fade-in-up';
+                categoryCard.style.animationDelay = `${index * 0.1}s`;
+                categoryCard.innerHTML = `
+                    <div class="category-icon">
+                        <i data-lucide="${category.icon}"></i>
+                    </div>
+                    <div class="category-name">${category.name}</div>
+                    <div class="text-xs text-gray-500 mt-1">${getFoodCountByCategory(category.id)} 件</div>
+                `;
+                categoryCard.onclick = () => filterByCategory(category.id);
+                categoryGrid.appendChild(categoryCard);
+            });
+            
+            lucide.createIcons();
+        }
+        
+        // 渲染食物列表
+        function renderFoodLists() {
+            renderExpiringSoonList();
+            renderAllFoodList();
+        }
+        
+        // 渲染即将过期列表
+        function renderExpiringSoonList() {
+            const expiringSoonList = document.getElementById('expiringSoonList');
+            const expiringFoods = foods.filter(food => isExpiringSoon(food.expiryDate) || isExpired(food.expiryDate));
+            
+            if (expiringFoods.length === 0) {
+                expiringSoonList.innerHTML = '<p class="text-center text-gray-500 py-8">没有即将过期的食物</p>';
+                return;
+            }
+            
+            expiringFoods.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+            expiringSoonList.innerHTML = '';
+            
+            expiringFoods.forEach((food, index) => {
+                const foodItem = createFoodItemElement(food, index);
+                expiringSoonList.appendChild(foodItem);
+            });
+            
+            lucide.createIcons();
+        }
+        
+        // 渲染所有食物列表
+        function renderAllFoodList() {
+            const allFoodList = document.getElementById('allFoodList');
+            
+            if (foods.length === 0) {
+                allFoodList.innerHTML = '<p class="text-center text-gray-500 py-8">冰箱里还没有食物，快去添加吧！</p>';
+                return;
+            }
+            
+            allFoodList.innerHTML = '';
+            
+            foods.forEach((food, index) => {
+                const foodItem = createFoodItemElement(food, index, true);
+                allFoodList.appendChild(foodItem);
+            });
+            
+            lucide.createIcons();
+        }
+        
+        // 创建食物项元素
+        function createFoodItemElement(food, index, showCategory = false) {
+            const foodItem = document.createElement('div');
+            foodItem.className = 'food-item fade-in-up';
+            foodItem.style.animationDelay = `${index * 0.05}s`;
+            
+            const category = categories.find(cat => cat.id === food.categoryId);
+            const isExpired = isExpired(food.expiryDate);
+            const isExpiringSoon = !isExpired && isExpiringSoon(food.expiryDate);
+            
+            let expiryBadge = '';
+            if (isExpired) {
+                expiryBadge = '<span class="expiry-badge expired">已过期</span>';
+            } else if (isExpiringSoon) {
+                expiryBadge = '<span class="expiry-badge warning">即将过期</span>';
+            } else {
+                expiryBadge = '<span class="expiry-badge safe">安全</span>';
+            }
+            
+            const expiryText = formatDate(food.expiryDate);
+            const categoryText = showCategory && category ? `<span class="text-xs text-gray-500">${category.name}</span>` : '';
+            
+            foodItem.innerHTML = `
+                <div class="food-info">
+                    <div class="food-icon">
+                        <i data-lucide="${category ? category.icon : 'apple'}"></i>
+                    </div>
+                    <div class="food-details">
+                        <h4>${food.name}</h4>
+                        <p>${expiryText} ${categoryText}</p>
+                        <p class="text-xs text-gray-500">添加者: ${food.addedBy || '未知'}</p>
+                        ${food.notes ? `<p class="text-xs text-gray-600">${food.notes}</p>` : ''}
+                        ${food.lastModifiedBy && food.lastModifiedBy !== food.addedBy ? `<p class="text-xs text-gray-400">最后修改: ${food.lastModifiedBy}</p>` : ''}
+                    </div>
+                </div>
+                <div class="food-actions">
+                    ${food.quantity > 1 ? `<span class="text-sm text-gray-500 mr-2">x${food.quantity}</span>` : ''}
+                    ${expiryBadge}
+                    <button onclick="editFood(${food.id})" class="p-1 text-gray-500 hover:text-gray-700">
+                        <i data-lucide="edit" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="deleteFood(${food.id})" class="p-1 text-gray-500 hover:text-red-500">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `;
+            
+            return foodItem;
+        }
+        
+        // 更新分类过滤器
+        function updateCategoryFilter() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            const foodCategory = document.getElementById('foodCategory');
+            
+            [categoryFilter, foodCategory].forEach(select => {
+                select.innerHTML = '<option value="">所有分类</option>';
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    select.appendChild(option);
+                });
+            });
+        }
+        
+        // 处理添加食物
+        function handleAddFood(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('foodName').value.trim();
+            const categoryId = parseInt(document.getElementById('foodCategory').value);
+            const expiryDate = document.getElementById('expiryDate').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const notes = document.getElementById('notes').value.trim();
+            
+            if (!name || !categoryId || !expiryDate) {
+                alert('请填写完整信息');
+                return;
+            }
+            
+            const newFood = {
+                id: Date.now(),
+                name,
+                categoryId,
+                expiryDate,
+                quantity,
+                notes,
+                addedDate: new Date().toISOString().split('T')[0],
+                addedBy: currentUser ? currentUser.name : '未知用户',
+                addedById: currentUser ? currentUser.id : null,
+                lastModified: new Date().toISOString()
+            };
+            
+            foods.push(newFood);
+            updateUI();
+            hideAddFoodModal();
+            
+            // 显示成功提示
+            showToast('食物添加成功！');
+        }
+        
+        // 处理添加分类
+        function handleAddCategory(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('categoryName').value.trim();
+            const icon = document.getElementById('categoryIcon').value;
+            
+            if (!name) {
+                alert('请输入分类名称');
+                return;
+            }
+            
+            const newCategory = {
+                id: Date.now(),
+                name,
+                icon
+            };
+            
+            categories.push(newCategory);
+            updateUI();
+            hideAddCategoryModal();
+            
+            // 显示成功提示
+            showToast('分类添加成功！');
+        }
+        
+        // 处理快速输入
+        function handleQuickInput(event) {
+            if (event.key === 'Enter') {
+                handleQuickInputSubmit();
+            }
+        }
+        
+        // 处理快速输入提交
+        function handleQuickInputSubmit() {
+            const input = document.getElementById('quickInput').value.trim();
+            if (!input) return;
+            
+            // 简单的自然语言处理
+            const parts = input.split(/\s+/);
+            let name = '';
+            let expiryDate = '';
+            let quantity = 1;
+            
+            // 尝试识别日期
+            for (let i = 0; i < parts.length; i++) {
+                if (isValidDate(parts[i])) {
+                    expiryDate = parts[i];
+                    parts.splice(i, 1);
+                    break;
+                }
+            }
+            
+            // 尝试识别数量
+            for (let i = 0; i < parts.length; i++) {
+                if (parts[i].startsWith('x') && !isNaN(parseInt(parts[i].substring(1)))) {
+                    quantity = parseInt(parts[i].substring(1));
+                    parts.splice(i, 1);
+                    break;
+                }
+            }
+            
+            // 剩余部分作为名称
+            name = parts.join(' ');
+            
+            if (!name) {
+                alert('无法识别食物名称');
+                return;
+            }
+            
+            if (!expiryDate) {
+                // 如果没有指定日期，默认7天后过期
+                const today = new Date();
+                const nextWeek = new Date(today);
+                nextWeek.setDate(today.getDate() + 7);
+                expiryDate = nextWeek.toISOString().split('T')[0];
+            }
+            
+            // 自动选择分类
+            let categoryId = 1; // 默认分类
+            const categoryKeywords = {
+                1: ['苹果', '香蕉', '橙子', '水果', 'apple', 'banana', 'orange'],
+                2: ['蔬菜', '胡萝卜', '白菜', '青菜', 'carrot', 'vegetable'],
+                3: ['牛奶', '酸奶', '奶酪', 'milk', 'yogurt', 'cheese'],
+                4: ['鸡蛋', '蛋', 'egg'],
+                5: ['面包', '米饭', '面条', 'bread', 'rice', 'noodle']
+            };
+            
+            for (const [id, keywords] of Object.entries(categoryIdKeywords)) {
+                if (keywords.some(keyword => name.toLowerCase().includes(keyword.toLowerCase()))) {
+                    categoryId = parseInt(id);
+                    break;
+                }
+            }
+            
+            const newFood = {
+                id: Date.now(),
+                name,
+                categoryId,
+                expiryDate,
+                quantity,
+                addedDate: new Date().toISOString().split('T')[0],
+                addedBy: currentUser ? currentUser.name : '未知用户',
+                addedById: currentUser ? currentUser.id : null,
+                lastModified: new Date().toISOString()
+            };
+            
+            foods.push(newFood);
+            updateUI();
+            document.getElementById('quickInput').value = '';
+            
+            // 显示成功提示
+            showToast(`已添加 ${quantity} 个 ${name}，保质期到 ${formatDate(expiryDate)}`);
+        }
+        
+        // 编辑食物
+        function editFood(id) {
+            const food = foods.find(f => f.id === id);
+            if (!food) return;
+            
+            // 填充表单
+            document.getElementById('foodName').value = food.name;
+            document.getElementById('foodCategory').value = food.categoryId;
+            document.getElementById('expiryDate').value = food.expiryDate;
+            document.getElementById('quantity').value = food.quantity;
+            document.getElementById('notes').value = food.notes || '';
+            
+            // 修改提交事件处理
+            const originalSubmitHandler = document.getElementById('addFoodForm').onsubmit;
+            document.getElementById('addFoodForm').onsubmit = function(e) {
+                e.preventDefault();
+                
+                // 更新食物信息
+                food.name = document.getElementById('foodName').value.trim();
+                food.categoryId = parseInt(document.getElementById('foodCategory').value);
+                food.expiryDate = document.getElementById('expiryDate').value;
+                food.quantity = parseInt(document.getElementById('quantity').value);
+                food.notes = document.getElementById('notes').value.trim();
+                food.lastModified = new Date().toISOString();
+                food.lastModifiedBy = currentUser ? currentUser.name : '未知用户';
+                
+                updateUI();
+                hideAddFoodModal();
+                
+                // 恢复原始提交处理
+                document.getElementById('addFoodForm').onsubmit = originalSubmitHandler;
+                
+                // 显示成功提示
+                showToast('食物信息更新成功！');
+            };
+            
+            showAddFoodModal();
+        }
+        
+        // 删除食物
+        function deleteFood(id) {
+            if (confirm('确定要删除这个食物吗？')) {
+                foods = foods.filter(food => food.id !== id);
+                updateUI();
+                showToast('食物已删除');
+            }
+        }
+        
+        // 按分类筛选
+        function filterByCategory(categoryId) {
+            const allFoodList = document.getElementById('allFoodList');
+            const filteredFoods = foods.filter(food => food.categoryId === categoryId);
+            
+            if (filteredFoods.length === 0) {
+                allFoodList.innerHTML = '<p class="text-center text-gray-500 py-8">该分类下没有食物</p>';
+                return;
+            }
+            
+            allFoodList.innerHTML = '';
+            filteredFoods.forEach((food, index) => {
+                const foodItem = createFoodItemElement(food, index);
+                allFoodList.appendChild(foodItem);
+            });
+            
+            lucide.createIcons();
+        }
+        
+        // 按分类筛选（下拉框）
+        function filterFoodByCategory() {
+            const categoryId = document.getElementById('categoryFilter').value;
+            
+            if (!categoryId) {
+                renderAllFoodList();
+                return;
+            }
+            
+            filterByCategory(parseInt(categoryId));
+        }
+        
+        // 按名称排序
+        function sortFoodByName() {
+            foods.sort((a, b) => a.name.localeCompare(b.name));
+            renderAllFoodList();
+        }
+        
+        // 按过期时间排序
+        function sortFoodByExpiry() {
+            foods.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+            renderExpiringSoonList();
+            renderAllFoodList();
+        }
+        
+        // 获取分类下的食物数量
+        function getFoodCountByCategory(categoryId) {
+            return foods.filter(food => food.categoryId === categoryId).length;
+        }
+        
+        // 检查是否已过期
+        function isExpired(date) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const expiryDate = new Date(date);
+            expiryDate.setHours(0, 0, 0, 0);
+            return expiryDate < today;
+        }
+        
+        // 检查是否即将过期（3天内）
+        function isExpiringSoon(date) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const expiryDate = new Date(date);
+            expiryDate.setHours(0, 0, 0, 0);
+            
+            const diffTime = expiryDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            return diffDays >= 0 && diffDays <= 3;
+        }
+        
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            date.setHours(0, 0, 0, 0);
+            
+            const diffTime = date - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) {
+                return `已过期 ${Math.abs(diffDays)} 天`;
+            } else if (diffDays === 0) {
+                return '今天过期';
+            } else if (diffDays === 1) {
+                return '明天过期';
+            } else if (diffDays <= 7) {
+                return `${diffDays} 天后过期`;
+            } else {
+                return `${date.getMonth() + 1}月${date.getDate()}日过期`;
+            }
+        }
+        
+        // 验证日期格式
+        function isValidDate(dateString) {
+            // 检查YYYY-MM-DD格式
+            const regex = /^\d{4}-\d{2}-\d{2}$/;
+            if (!regex.test(dateString)) return false;
+            
+            const date = new Date(dateString);
+            return date instanceof Date && !isNaN(date);
+        }
+        
+        // 显示添加食物模态框
+        function showAddFoodModal() {
+            document.getElementById('addFoodModal').classList.add('active');
+            document.getElementById('foodName').focus();
+        }
+        
+        // 隐藏添加食物模态框
+        function hideAddFoodModal() {
+            document.getElementById('addFoodModal').classList.remove('active');
+            document.getElementById('addFoodForm').reset();
+            
+            // 重置日期为默认值
+            const today = new Date();
+            const nextWeek = new Date(today);
+            nextWeek.setDate(today.getDate() + 7);
+            document.getElementById('expiryDate').valueAsDate = nextWeek;
+        }
+        
+        // 显示添加分类模态框
+        function showAddCategoryModal() {
+            document.getElementById('addCategoryModal').classList.add('active');
+            document.getElementById('categoryName').focus();
+        }
+        
+        // 隐藏添加分类模态框
+        function hideAddCategoryModal() {
+            document.getElementById('addCategoryModal').classList.remove('active');
+            document.getElementById('addCategoryForm').reset();
+        }
+        
+        // 切换语音输入
+        function toggleVoiceInput() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('您的浏览器不支持语音识别功能');
+                return;
+            }
+            
+            if (isVoiceActive) {
+                stopVoiceRecognition();
+            } else {
+                startVoiceRecognition();
+            }
+        }
+        
+        // 开始语音识别
+        function startVoiceRecognition() {
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'zh-CN';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            
+            recognition.onstart = function() {
+                isVoiceActive = true;
+                document.querySelector('.voice-btn i').setAttribute('data-lucide', 'mic-off');
+                lucide.createIcons();
+                showToast('请说出食物名称和保质期...');
+            };
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('quickInput').value = transcript;
+                handleQuickInputSubmit();
+            };
+            
+            recognition.onend = function() {
+                stopVoiceRecognition();
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('语音识别错误:', event.error);
+                stopVoiceRecognition();
+                showToast('语音识别失败，请重试');
+            };
+            
+            recognition.start();
+        }
+        
+        // 停止语音识别
+        function stopVoiceRecognition() {
+            if (recognition) {
+                recognition.stop();
+            }
+            
+            isVoiceActive = false;
+            document.querySelector('.voice-btn i').setAttribute('data-lucide', 'mic');
+            lucide.createIcons();
+        }
+        
+        // 显示家庭成员管理模态框
+        function showFamilyModal() {
+            document.getElementById('familyModal').classList.add('active');
+            renderFamilyMembers();
+            generateShareLink();
+        }
+        
+        // 隐藏家庭成员管理模态框
+        function hideFamilyModal() {
+            document.getElementById('familyModal').classList.remove('active');
+        }
+        
+        // 显示添加成员模态框
+        function showAddMemberModal() {
+            document.getElementById('addMemberModal').classList.add('active');
+            document.getElementById('memberName').focus();
+        }
+        
+        // 隐藏添加成员模态框
+        function hideAddMemberModal() {
+            document.getElementById('addMemberModal').classList.remove('active');
+            document.getElementById('addMemberForm').reset();
+        }
+        
+        // 渲染家庭成员列表
+        function renderFamilyMembers() {
+            const membersList = document.getElementById('familyMembersList');
+            membersList.innerHTML = '';
+            
+            familyMembers.forEach((member, index) => {
+                const memberElement = document.createElement('div');
+                memberElement.className = 'flex justify-between items-center p-2 border border-gray-200 rounded';
+                
+                const isCurrentUser = currentUser && member.id === currentUser.id;
+                const roleText = member.role === 'admin' ? '管理员' : '成员';
+                const currentUserText = isCurrentUser ? ' (我)' : '';
+                
+                memberElement.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i data-lucide="user" class="w-4 h-4 text-blue-600"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium">${member.name}${currentUserText}</div>
+                            <div class="text-xs text-gray-500">${roleText}</div>
+                        </div>
+                    </div>
+                    ${!isCurrentUser && currentUser && currentUser.role === 'admin' ? `
+                        <button onclick="removeFamilyMember(${member.id})" class="text-red-500 hover:text-red-700">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    ` : ''}
+                `;
+                
+                membersList.appendChild(memberElement);
+            });
+            
+            lucide.createIcons();
+        }
+        
+        // 生成共享链接
+        function generateShareLink() {
+            const baseUrl = window.location.origin + window.location.pathname;
+            const shareLink = `${baseUrl}?fridgeId=${fridgeId}`;
+            document.getElementById('shareLink').value = shareLink;
+        }
+        
+        // 复制共享链接
+        function copyShareLink() {
+            const shareLink = document.getElementById('shareLink');
+            shareLink.select();
+            shareLink.setSelectionRange(0, 99999); // For mobile devices
+            
+            try {
+                document.execCommand('copy');
+                showToast('链接已复制到剪贴板！');
+            } catch (err) {
+                showToast('复制失败，请手动复制');
+            }
+        }
+        
+        // 移除家庭成员
+        function removeFamilyMember(memberId) {
+            if (confirm('确定要移除这个家庭成员吗？')) {
+                familyMembers = familyMembers.filter(member => member.id !== memberId);
+                saveFamilyMembers();
+                saveSharedData();
+                renderFamilyMembers();
+                showToast('成员已移除');
+            }
+        }
+        
+        // 处理添加家庭成员
+        function handleAddMember(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('memberName').value.trim();
+            const role = document.getElementById('memberRole').value;
+            
+            if (!name) {
+                alert('请输入成员名称');
+                return;
+            }
+            
+            const newMember = {
+                id: Date.now(),
+                name,
+                role
+            };
+            
+            familyMembers.push(newMember);
+            saveFamilyMembers();
+            saveSharedData();
+            renderFamilyMembers();
+            hideAddMemberModal();
+            
+            // 显示成功提示
+            showToast('家庭成员添加成功！');
+        }
+        
+        // 显示提示信息
+        function showToast(message) {
+            // 创建提示元素
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-black text-white px-4 py-2 rounded-lg z-500 text-sm';
+            toast.textContent = message;
+            
+            // 添加到页面
+            document.body.appendChild(toast);
+            
+            // 2秒后自动移除
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 2000);
+        }
+        
+        // 设置自定义鼠标
+        function setupCustomCursor() {
+            const cursor = document.getElementById('custom-cursor');
+            let mouseX = 0;
+            let mouseY = 0;
+            let cursorX = 0;
+            let cursorY = 0;
+            
+            // 显示鼠标
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.opacity = '1';
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+            
+            // 平滑跟随效果
+            function animateCursor() {
+                const speed = 0.2;
+                cursorX += (mouseX - cursorX) * speed;
+                cursorY += (mouseY - cursorY) * speed;
+                
+                cursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
+                requestAnimationFrame(animateCursor);
+            }
+            
+            animateCursor();
+            
+            // 悬停效果
+            const hoverElements = document.querySelectorAll('button, input, .category-card, .food-item');
+            hoverElements.forEach(element => {
+                element.addEventListener('mouseenter', () => {
+                    cursor.style.width = '40px';
+                    cursor.style.height = '40px';
+                    cursor.style.mixBlendMode = 'normal';
+                    cursor.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
+                });
+                
+                element.addEventListener('mouseleave', () => {
+                    cursor.style.width = '24px';
+                    cursor.style.height = '24px';
+                    cursor.style.mixBlendMode = 'difference';
+                    cursor.style.backgroundColor = 'transparent';
+                });
+            });
+        }
+        
+        // 设置滚动效果
+        function setupScrollEffects() {
+            const header = document.querySelector('.header');
+            let lastScrollY = window.scrollY;
+            
+            window.addEventListener('scroll', () => {
+                const currentScrollY = window.scrollY;
+                
+                // 头部导航栏效果
+                if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                    header.style.transform = 'translateY(-100%)';
+                } else {
+                    header.style.transform = 'translateY(0)';
+                }
+                
+                lastScrollY = currentScrollY;
+                
+                // 滚动差分效果
+                const screens = document.querySelectorAll('.screen');
+                const scrollY = window.scrollY;
+                
+                screens.forEach((screen, index) => {
+                    const screenTop = screen.offsetTop;
+                    const screenHeight = screen.offsetHeight;
+                    
+                    if (scrollY >= screenTop - window.innerHeight && scrollY < screenTop + screenHeight) {
+                        const progress = (scrollY - (screenTop - window.innerHeight)) / (screenHeight + window.innerHeight);
+                        
+                        if (index > 0) {
+                            const translateY = -100 * (1 - progress);
+                            screen.style.transform = `translateY(${translateY}px)`;
+                        }
+                    }
+                });
+            });
+        }
+        
+        // 模拟数据（用于演示）
+        function addMockData() {
+            const mockFoods = [
+                {
+                    id: 1,
+                    name: '牛奶',
+                    categoryId: 3,
+                    expiryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    quantity: 2,
+                    notes: '早餐用',
+                    addedDate: new Date().toISOString().split('T')[0]
+                },
+                {
+                    id: 2,
+                    name: '苹果',
+                    categoryId: 1,
+                    expiryDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    quantity: 5,
+                    addedDate: new Date().toISOString().split('T')[0]
+                },
+                {
+                    id: 3,
+                    name: '鸡蛋',
+                    categoryId: 4,
+                    expiryDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    quantity: 10,
+                    addedDate: new Date().toISOString().split('T')[0]
+                },
+                {
+                    id: 4,
+                    name: '胡萝卜',
+                    categoryId: 2,
+                    expiryDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    quantity: 3,
+                    addedDate: new Date().toISOString().split('T')[0]
+                }
+            ];
+            
+            foods = mockFoods;
+            updateUI();
+        }
+        
+        // 页面加载完成后添加模拟数据
+        window.addEventListener('load', function() {
+            // 如果没有保存的数据，添加模拟数据
+            if (foods.length === 0) {
+                addMockData();
+            }
+        });
+    </script>
+</body>
+</html>
