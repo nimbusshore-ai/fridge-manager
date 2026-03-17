@@ -1,0 +1,14 @@
+<view class="card">
+ <view style="font-size:34rpx;font-weight:700;">家庭冰箱（占位）</view>
+ <view class="muted" style="margin-top:8rpx;">今晚原型先用本地数据。3天闭环版接入云端同步与邀请加入。</view>
+</view>
+
+<view class="card">
+ <view style="font-weight:700;">下一步（闭环版）</view>
+ <view class="muted" style="margin-top:8rpx;line-height:1.6;">
+1) 微信登录/用户ID<br/>
+2) 创建/加入冰箱<br/>
+3) 数据云同步<br/>
+4)订阅消息：72h+24h提醒
+ </view>
+</view>

@@ -1,0 +1,21 @@
+{
+ "pages": [
+ "pages/home/home",
+ "pages/add/add",
+ "pages/fridge/fridge",
+ "pages/processed/processed"
+ ],
+ "window": {
+ "navigationBarTitleText": "我家的冰箱",
+ "navigationBarBackgroundColor": "#ffffff",
+ "navigationBarTextStyle": "black",
+ "backgroundTextStyle": "light",
+ "backgroundColor": "#ffffff"
+ },
+ "plugins": {
+ "WechatSI": {
+ "version": "0.3.5",
+ "provider": "wx069ba97219f66d99"
+ }
+ }
+}

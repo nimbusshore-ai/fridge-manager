@@ -1,0 +1,61 @@
+<view class="card">
+ <view class="row">
+ <view>
+ <view style="font-size:36rpx;font-weight:700;">3天内先吃</view>
+ <view class="muted" style="margin-top:6rpx;">按到期日排序 · 一键吃掉/丢弃</view>
+ </view>
+ <navigator url="/pages/add/add" class="btn-primary" style="display:inline-block;">添加</navigator>
+ </view>
+</view>
+
+<view class="card" wx:if="{{groups.overdue.length}}">
+ <view class="row" style="margin-bottom:12rpx;">
+ <view style="font-weight:700;">已到期</view>
+ <view class="badge-red">尽快处理</view>
+ </view>
+ <block wx:for="{{groups.overdue}}" wx:key="id">
+ <view class="row" style="padding:14rpx0;border-top:1px solid #f2f2f2;">
+ <view>
+ <view style="font-weight:600;">{{iconFor(item)}} {{itemTitle(item)}}</view>
+ <view class="muted">{{locationBadge(item)}} · 到期 {{item.expireDate}}</view>
+ </view>
+ <view style="display:flex;gap:12rpx;">
+ <button size="mini" data-id="{{item.id}}" bindtap="onConsume">吃掉</button>
+ <button size="mini" type="warn" data-id="{{item.id}}" bindtap="onDiscard">丢弃</button>
+ </view>
+ </view>
+ </block>
+</view>
+
+<view class="card" wx:if="{{groups.d3.length}}">
+ <view class="row" style="margin-bottom:12rpx;">
+ <view style="font-weight:700;">3天内到期</view>
+ <view class="badge-orange">优先吃</view>
+ </view>
+ <block wx:for="{{groups.d3}}" wx:key="id">
+ <view class="row" style="padding:14rpx0;border-top:1px solid #f2f2f2;">
+ <view>
+ <view style="font-weight:600;">{{iconFor(item)}} {{itemTitle(item)}}</view>
+ <view class="muted">{{locationBadge(item)}} · 到期 {{item.expireDate}}</view>
+ </view>
+ <view style="display:flex;gap:12rpx;">
+ <button size="mini" data-id="{{item.id}}" bindtap="onConsume">吃掉</button>
+ <button size="mini" type="warn" data-id="{{item.id}}" bindtap="onDiscard">丢弃</button>
+ </view>
+ </view>
+ </block>
+</view>
+
+<view class="card" wx:if="{{!groups.overdue.length && !groups.d3.length}}">
+ <view style="font-weight:700;">很好</view>
+ <view class="muted" style="margin-top:8rpx;">未来3天没有临期食物。点击右上角“添加”开始记录。</view>
+</view>
+
+<view style="height:140rpx;"></view>
+
+<view class="card" style="position:fixed;left:0;right:0;bottom:0;margin:0;border-radius:0;border-left:none;border-right:none;border-bottom:none;">
+ <view class="row">
+ <navigator url="/pages/processed/processed" class="muted">已处理</navigator>
+ <navigator url="/pages/add/add" class="btn-primary" style="display:inline-block;">🎙️语音添加</navigator>
+ </view>
+</view>

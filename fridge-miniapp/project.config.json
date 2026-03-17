@@ -1,0 +1,9 @@
+{
+ "miniprogramRoot": "miniprogram/",
+ "cloudfunctionRoot": "cloudfunctions/",
+ "setting": {
+ "urlCheck": true
+ },
+ "appid": "touristappid",
+ "projectname": "fridge-miniapp"
+}

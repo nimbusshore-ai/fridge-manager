@@ -1,0 +1,47 @@
+<view class="card">
+ <view style="font-size:34rpx;font-weight:700;">添加食物</view>
+ <view class="muted" style="margin-top:8rpx;">按住说一句："牛奶 冷藏3月15到期"，会自动填表。</view>
+ <view style="margin-top:16rpx;display:flex;gap:12rpx;align-items:center;">
+ <button class="btn-primary" bindtouchstart="onHoldToTalkStart" bindtouchend="onHoldToTalkEnd" style="flex:1;">按住说话</button>
+ <view class="muted" wx:if="{{asrText}}" style="flex:2;">识别：{{asrText}}</view>
+ </view>
+</view>
+
+<view class="card">
+ <view style="font-weight:700;margin-bottom:12rpx;">名称（必填）</view>
+ <input placeholder="比如：牛奶 / 剩菜 / 草莓" value="{{title}}" bindinput="onTitle" />
+</view>
+
+<view class="card">
+ <view style="font-weight:700;margin-bottom:12rpx;">存放位置</view>
+ <picker mode="selector" range="{{locations}}" value="{{locIndex}}" bindchange="onLocChange">
+ <view class="row">
+ <view>{{locations[locIndex]}}</view>
+ <view class="muted">选择</view>
+ </view>
+ </picker>
+</view>
+
+<view class="card">
+ <view style="font-weight:700;margin-bottom:12rpx;">品类（用于图标）</view>
+ <picker mode="selector" range="{{categories}}" value="{{catIndex}}" bindchange="onCatChange">
+ <view class="row">
+ <view>{{categories[catIndex]}}</view>
+ <view class="muted">选择</view>
+ </view>
+ </picker>
+</view>
+
+<view class="card">
+ <view style="font-weight:700;margin-bottom:12rpx;">到期日（必填）</view>
+ <picker mode="date" value="{{expireDate}}" bindchange="onDateChange">
+ <view class="row">
+ <view>{{expireDate || '选择日期'}}</view>
+ <view class="muted">选择</view>
+ </view>
+ </picker>
+</view>
+
+<view class="card">
+ <button class="btn-primary" bindtap="onSubmit">保存</button>
+</view>

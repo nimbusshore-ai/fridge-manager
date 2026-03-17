@@ -1,0 +1,34 @@
+<view class="card">
+ <view style="font-size:34rpx;font-weight:700;">已处理</view>
+ <view class="muted" style="margin-top:8rpx;">吃掉/丢弃的记录（用于复盘）。</view>
+</view>
+
+<view class="card" wx:if="{{consumed.length}}">
+ <view style="font-weight:700;margin-bottom:12rpx;">已吃</view>
+ <block wx:for="{{consumed}}" wx:key="id">
+ <view class="row" style="padding:14rpx0;border-top:1px solid #f2f2f2;">
+ <view>
+ <view style="font-weight:600;">{{itemTitle(item)}}</view>
+ <view class="muted">{{item.location==='冷冻' ? '❄️冷冻' : '🧊冷藏'}} · 到期 {{item.expireDate}}</view>
+ </view>
+ <button size="mini" data-id="{{item.id}}" bindtap="onUndo">撤销</button>
+ </view>
+ </block>
+</view>
+
+<view class="card" wx:if="{{discarded.length}}">
+ <view style="font-weight:700;margin-bottom:12rpx;">已丢弃</view>
+ <block wx:for="{{discarded}}" wx:key="id">
+ <view class="row" style="padding:14rpx0;border-top:1px solid #f2f2f2;">
+ <view>
+ <view style="font-weight:600;">{{itemTitle(item)}}</view>
+ <view class="muted">{{item.location==='冷冻' ? '❄️冷冻' : '🧊冷藏'}} · 到期 {{item.expireDate}}</view>
+ </view>
+ <button size="mini" data-id="{{item.id}}" bindtap="onUndo">撤销</button>
+ </view>
+ </block>
+</view>
+
+<view class="card" wx:if="{{!consumed.length && !discarded.length}}">
+ <view class="muted">暂无记录</view>
+</view>

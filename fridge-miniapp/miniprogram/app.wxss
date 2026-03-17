@@ -1,0 +1,7 @@
+page{background:#fff;color:#111;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;}
+.btn-primary{background:#111;color:#fff;border-radius:12rpx;padding:20rpx24rpx;}
+.card{border:1px solid #eee;border-radius:16rpx;padding:20rpx;margin:16rpx;}
+.muted{color:#666;}
+.badge-red{color:#fff;background:#e02020;border-radius:999rpx;padding:4rpx12rpx;font-size:22rpx;}
+.badge-orange{color:#fff;background:#ff7a00;border-radius:999rpx;padding:4rpx12rpx;font-size:22rpx;}
+.row{display:flex;align-items:center;justify-content:space-between;gap:16rpx;}
